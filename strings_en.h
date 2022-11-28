@@ -291,6 +291,11 @@ const char R_status[] PROGMEM = "/status";
 const char R_update[] PROGMEM = "/update";
 const char R_updatedone[] PROGMEM = "/u";
 
+// CUSTOM ROUTES
+const char R_API_wifi[] PROGMEM = "/api/wifi";
+const char R_API_wifisave[] PROGMEM = "/api/wifisave";
+const char R_API_erase[] PROGMEM = "/api/erase";
+
 // Strings
 const char S_ip[] PROGMEM = "ip";
 const char S_gw[] PROGMEM = "gw";
