@@ -349,7 +349,7 @@ String WiFiManager::getScanJSON()
     }
     item += "\"ssid\":\"" + WiFi.SSID(indices[i]) + "\"";                                           // ssid
     item += ",\"strength\":" + (String)rssiperc;                                                    // rssi percentage 0-100
-    item += ",\"secure\":" + (String)((enc_type == WM_WIFIOPEN ? "true" : "false")) + (String) "}"; // has password or not
+    item += ",\"secure\":" + (String)((enc_type == WM_WIFIOPEN ? "false" : "true")) + (String) "}"; // has password or not
 #ifdef WM_DEBUG_LEVEL
     DEBUG_WM(DEBUG_VERBOSE, item);
 #endif
