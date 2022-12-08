@@ -237,6 +237,61 @@ void WiFiManager::handleAPISaveWifi()
   DEBUG_WM(DEBUG_VERBOSE, F("<- HTTP API Save Wifi"));
 #endif
   handleRequest();
+  // SAVE/connect here
+  _ssid = server->arg(F("s")).c_str();
+  _pass = server->arg(F("p")).c_str();
+
+  // set static ips from server args
+  if (server->arg(FPSTR(S_ip)) != "")
+  {
+    //_sta_static_ip.fromString(server->arg(FPSTR(S_ip));
+    String ip = server->arg(FPSTR(S_ip));
+    optionalIPFromString(&_sta_static_ip, ip.c_str());
+#ifdef WM_DEBUG_LEVEL
+    DEBUG_WM(DEBUG_DEV, F("static ip:"), ip);
+#endif
+  }
+  if (server->arg(FPSTR(S_gw)) != "")
+  {
+    String gw = server->arg(FPSTR(S_gw));
+    optionalIPFromString(&_sta_static_gw, gw.c_str());
+#ifdef WM_DEBUG_LEVEL
+    DEBUG_WM(DEBUG_DEV, F("static gateway:"), gw);
+#endif
+  }
+  if (server->arg(FPSTR(S_sn)) != "")
+  {
+    String sn = server->arg(FPSTR(S_sn));
+    optionalIPFromString(&_sta_static_sn, sn.c_str());
+#ifdef WM_DEBUG_LEVEL
+    DEBUG_WM(DEBUG_DEV, F("static netmask:"), sn);
+#endif
+  }
+  if (server->arg(FPSTR(S_dns)) != "")
+  {
+    String dns = server->arg(FPSTR(S_dns));
+    optionalIPFromString(&_sta_static_dns, dns.c_str());
+#ifdef WM_DEBUG_LEVEL
+    DEBUG_WM(DEBUG_DEV, F("static DNS:"), dns);
+#endif
+  }
+
+  if (_presavewificallback != NULL)
+  {
+    _presavewificallback(); // @CALLBACK
+  }
+
+  if (_paramsInWifi)
+    doParamSave();
+
+  String response = "{\"message\":\"Saved credentials\"}";
+  server->send(200, FPSTR("application/json"), response);
+
+#ifdef WM_DEBUG_LEVEL
+  DEBUG_WM(DEBUG_DEV, F("Sent wifi saved"));
+#endif
+
+  connect = true; // signal ready to connect/reset process in processConfigPortal
 };
 
 String WiFiManager::getScanJSON()
@@ -902,6 +957,7 @@ void WiFiManager::setupHTTPServer()
 
   // CUSTOM HANDLERS
   server->on(WM_G(R_API_wifi), std::bind(&WiFiManager::handleAPIWifi, this));
+  server->on(WM_G(R_API_wifisave), std::bind(&WiFiManager::handleAPISaveWifi, this));
 
   server->begin(); // Web server start
 #ifdef WM_DEBUG_LEVEL
